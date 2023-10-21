@@ -5,7 +5,7 @@ export type TodolistDocument = HydratedDocument<Document & Todolist>;
 
 @Schema({ timestamps: true })
 export class Todolist {
-    @Prop({ unique: true })
+    @Prop()
     title: string;
 
     @Prop()

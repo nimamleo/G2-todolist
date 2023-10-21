@@ -8,7 +8,7 @@ export class TodolistService {
     constructor(private readonly todolistRepository: TodolistRepository) {}
 
     getOneTodolist(id: string) {
-        return this.todolistRepository.findOne({ id });
+        return this.todolistRepository.findOne({ _id: id });
     }
 
     getAllTodolist() {
@@ -21,13 +21,14 @@ export class TodolistService {
 
     updateTodolist(id: string, updateTodolistDto: UpdateTodolistDto) {
         console.log(updateTodolistDto);
-        
-        return this.todolistRepository.findByIdAndUpdate({id} , updateTodolistDto);
+
+        return this.todolistRepository.findOneAndUpdate(
+            { _id: id },
+            updateTodolistDto,
+        );
     }
 
     removeOneTodolist(id: string) {
-        console.log({id});
-        
-        return this.todolistRepository.deleteOne({id});
+        return this.todolistRepository.deleteOne({ _id: id });
     }
 }
