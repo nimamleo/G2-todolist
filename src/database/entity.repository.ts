@@ -7,15 +7,19 @@ export abstract class EntityRepository<T extends Document> {
         entityFilterQuery: FilterQuery<T>,
         projection?: Record<string, unknown>,
     ): Promise<T | null> {
-        return this.entityModel
-            .findOne(entityFilterQuery, {
-                _v: 0,
+        const result = await this.entityModel
+            .findById(entityFilterQuery.id, {
                 _id: 0,
+                __v: 0,
                 ...projection,
             })
             .exec();
+        console.log(result);
+
+        return result;
     }
-    async find(entityFilterQuery: FilterQuery<T>): Promise<T[] | []> {
+
+    async find(entityFilterQuery: FilterQuery<T>): Promise<T[] | null> {
         return this.entityModel.find(entityFilterQuery);
     }
 
@@ -24,20 +28,24 @@ export abstract class EntityRepository<T extends Document> {
         return entity.save();
     }
 
-    async findOneAndUpdate(
+    async findByIdAndUpdate(
         entityFilterQuery: FilterQuery<T>,
         updateEntityData: UpdateQuery<unknown>,
     ): Promise<T | null> {
-        return this.entityModel.findOneAndUpdate(
-            entityFilterQuery,
+        return this.entityModel.findByIdAndUpdate(
+            entityFilterQuery.id,
             updateEntityData,
-            { new: true },
+            {
+                new: true,
+            },
         );
     }
 
-    async deleteOne(entityFilterQuery: FilterQuery<T>): Promise<boolean> {
-        const deleteResult =
-            await this.entityModel.deleteOne(entityFilterQuery);
-        return deleteResult.deletedCount >= 1;
+    async deleteOne(entityFilterQuery: FilterQuery<T>): Promise<T> {
+        const deleteResult = await this.entityModel.findByIdAndDelete(
+            entityFilterQuery.id,
+        );
+
+        return deleteResult;
     }
 }

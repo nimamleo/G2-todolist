@@ -1,34 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    HttpCode,
+} from '@nestjs/common';
 import { TodolistService } from './todolist.service';
 import { CreateTodolistDto } from './dto/create-todolist.dto';
 import { UpdateTodolistDto } from './dto/update-todolist.dto';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 @Controller('todolist')
 export class TodolistController {
-  constructor(private readonly todolistService: TodolistService) {}
+    constructor(private readonly todolistService: TodolistService) {}
 
-  @Post()
-  create(@Body() createTodolistDto: CreateTodolistDto) {
-    return this.todolistService.create(createTodolistDto);
-  }
+    @Get(':id')
+    getOneTodolist(@Param('id') id: string) {
+        return this.todolistService.getOneTodolist(id);
+    }
 
-  @Get()
-  findAll() {
-    return this.todolistService.findAll();
-  }
+    @Get()
+    getAllTodolist() {
+        return this.todolistService.getAllTodolist();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.todolistService.findOne(+id);
-  }
+    @Post()
+    createTodolist(@Body() createTodolistDto: CreateTodolistDto) {
+        return this.todolistService.createTodolist(createTodolistDto);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodolistDto: UpdateTodolistDto) {
-    return this.todolistService.update(+id, updateTodolistDto);
-  }
+    @Patch(':id')
+    updateTodolist(
+        @Param('id') id: string,
+        @Body() updateTodolistDto: UpdateTodolistDto,
+    ) {
+        return this.todolistService.updateTodolist(id, updateTodolistDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.todolistService.remove(+id);
-  }
+    @Delete(':id')
+    @HttpCode(204)
+    removeOneTodolist(@Param('id') id: string) {
+        return this.todolistService.removeOneTodolist(id);
+    }
 }
