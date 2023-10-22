@@ -8,7 +8,6 @@ export abstract class EntityRepository<T extends Document> {
         entityFilterQuery: FilterQuery<T>,
         projection?: Record<string, unknown>,
     ): Promise<T | null> {
-        await this.checkIsExist(entityFilterQuery);
         return this.entityModel
             .findOne(entityFilterQuery, {
                 _id: 0,
@@ -23,7 +22,7 @@ export abstract class EntityRepository<T extends Document> {
     }
 
     async create(createEntityData: unknown): Promise<T | any> {
-        await this.checkIsExist(createEntityData)
+        await this.checkIsExist(createEntityData);
         const entity = new this.entityModel(createEntityData);
         return entity.save();
     }
@@ -32,7 +31,7 @@ export abstract class EntityRepository<T extends Document> {
         entityFilterQuery: FilterQuery<T>,
         updateEntityData: UpdateQuery<unknown>,
     ): Promise<T | null> {
-        await this.checkIsExist(entityFilterQuery)
+        await this.checkIsExist(entityFilterQuery);
         return this.entityModel.findOneAndUpdate(
             entityFilterQuery,
             updateEntityData,
@@ -43,7 +42,7 @@ export abstract class EntityRepository<T extends Document> {
     }
 
     async deleteOne(entityFilterQuery: FilterQuery<T>): Promise<boolean> {
-        await this.checkIsExist(entityFilterQuery)
+        await this.checkIsExist(entityFilterQuery);
         const deleteResult =
             await this.entityModel.deleteOne(entityFilterQuery);
         return deleteResult.deletedCount >= 1;

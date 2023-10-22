@@ -7,12 +7,11 @@ import { TodolistRepository } from './todolist.repository';
 
 @Module({
     controllers: [TodolistController],
-    providers: [TodolistService , TodolistRepository],
+    providers: [TodolistService, TodolistRepository],
     imports: [
         MongooseModule.forFeature([
             { name: Todolist.name, schema: Todolistchema },
         ]),
-        
     ],
 })
 export class TodolistModule {}
