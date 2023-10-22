@@ -5,6 +5,7 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import * as Joi from 'joi';
 
 @Module({
     imports: [
@@ -12,6 +13,10 @@ import { AuthModule } from './auth/auth.module';
         DatabaseModule,
         ConfigModule.forRoot({
             isGlobal: true,
+            validationSchema: Joi.object({
+                MONGO_DB_URL: Joi.string(),
+                JWT_SECRET: Joi.string(),
+            }),
         }),
         UsersModule,
         AuthModule,

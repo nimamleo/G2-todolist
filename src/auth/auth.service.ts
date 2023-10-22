@@ -3,6 +3,7 @@ import { CreateAuthDto } from './dto/create-auth.dto';
 import { UserRepository } from 'src/users/user.repository';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { ObjectId } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
         const comparePassword = await bcrypt.compare(password, user.password);
         if (!comparePassword)
             throw new InternalServerErrorException('credential not valid');
-        return this.signUser(user.id, user.username, 'user');
+        const token =await this.signUser(user._id, user.username, 'user');
+        return {token}
     }
 
     async signupLocal(dto: CreateAuthDto) {
@@ -31,7 +33,7 @@ export class AuthService {
         return user;
     }
 
-    async signUser(userId: string, username: string, type: string) {
+    async signUser(userId: ObjectId, username: string, type: string) {
         return this.jwtService.sign({
             sub: userId,
             username,

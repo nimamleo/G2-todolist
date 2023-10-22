@@ -1,12 +1,4 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-} from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
 
@@ -15,15 +7,23 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post('signin')
-    signinLocal(
+    async signinLocal(
         @Body('username') username: string,
         @Body('password') password: string,
     ) {
-        return this.authService.signinLocal(username, password);
+        const data = await this.authService.signinLocal(username, password);
+        return {
+            data,
+            statusCode: 200,
+        };
     }
 
-    @Post("signup")
-    signupLocal(@Body() dto: CreateAuthDto) {
-        return this.authService.signupLocal(dto);
+    @Post('signup')
+    async signupLocal(@Body() dto: CreateAuthDto) {
+        const data = await this.authService.signupLocal(dto);
+        return {
+            data,
+            statusCode: 200,
+        };
     }
 }

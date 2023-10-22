@@ -1,19 +1,37 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas';
-import { Model } from 'mongoose';
-import { EntityRepository } from 'src/database/entity.repository';
+import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
-import { CreateAuthDto } from 'src/auth/dto/create-auth.dto';
 
 @Injectable()
-export class UserRepository extends EntityRepository<UserDocument> {
+export class UserRepository  {
     constructor(
         @InjectModel(User.name)
         private userModel: Model<UserDocument>,
-    ) {
-        super(userModel);
+    ) {}
+
+    async findOne(
+        entityFilterQuery: FilterQuery<User>,
+        projection?: Record<string, unknown>,
+        path?: string,
+    ): Promise<User | null> {
+        return this.userModel
+            .findOne(entityFilterQuery, {
+                __v: 0,
+                ...projection,
+            })
+            .populate(path)
+            .exec();
+    }
+
+    async find(entityFilterQuery: FilterQuery<User>): Promise<User[] | null> {
+        return this.userModel.find(entityFilterQuery);
     }
 
     async create(createEntityData: CreateUserDto): Promise<any> {
@@ -24,9 +42,35 @@ export class UserRepository extends EntityRepository<UserDocument> {
         if (user)
             throw new InternalServerErrorException('this user already exist');
 
-        const password =await  bcrypt.hash(createEntityData.password, 10);
+        const password = await bcrypt.hash(createEntityData.password, 10);
         console.log(password);
 
-        return this.userModel.create({  ...createEntityData  , password})
+        return this.userModel.create({ ...createEntityData, password });
+    }
+
+    async findOneAndUpdate(
+        entityFilterQuery: FilterQuery<User>,
+        updateEntityData: UpdateQuery<unknown>,
+    ): Promise<User | null> {
+        await this.checkIsExist(entityFilterQuery);
+        return this.userModel.findOneAndUpdate(
+            entityFilterQuery,
+            updateEntityData,
+            {
+                new: true,
+            },
+        );
+    }
+
+    async deleteOne(entityFilterQuery: FilterQuery<User>): Promise<boolean> {
+        await this.checkIsExist(entityFilterQuery);
+        const deleteResult = await this.userModel.deleteOne(entityFilterQuery);
+        return deleteResult.deletedCount >= 1;
+    }
+
+    async checkIsExist(query: FilterQuery<unknown>) {
+        const res = await this.userModel.findOne(query);
+        if (!res) throw new NotFoundException('data not found');
+        return !!res;
     }
 }
